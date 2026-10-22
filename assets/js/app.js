@@ -421,7 +421,7 @@
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'cart-remove-button';
-    remove.textContent = 'Quitar';
+    remove.innerHTML = '<span class="cart-remove-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path d="M3 4.7h10M6 4.7V3.5h4v1.2M4.5 4.7l.55 8h5.9l.55-8M6.5 7v3.8M9.5 7v3.8" /></svg></span><span class="cart-remove-label">Quitar</span>';
     remove.setAttribute('aria-label', `Quitar ${product.nombre || 'producto'} del carrito`);
     remove.title = 'Quitar este producto del carrito';
     remove.addEventListener('click', () => removeFromCart(item.id));
