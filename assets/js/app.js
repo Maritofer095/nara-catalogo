@@ -362,6 +362,17 @@
     saveCart(); renderCart();
   }
 
+  // Quita completamente un producto del carrito, sin modificar el catálogo.
+  function removeFromCart(id) {
+    const product = productById(id);
+    const exists = state.cart.some(line => line.id === String(id));
+    if (!exists) return;
+    state.cart = state.cart.filter(line => line.id !== String(id));
+    saveCart();
+    renderCart();
+    showToast(`${product && product.nombre ? product.nombre : 'Producto'} quitado del carrito.`);
+  }
+
   function renderCart() {
     const lines = getCartLines();
     const itemCount = getTotalItems();
@@ -400,23 +411,42 @@
     const unit = priceNumber(product); const unitText = document.createElement('p'); unitText.className = 'cart-item-unit'; unitText.textContent = `${formatGs(unit)} c/u`; info.appendChild(unitText);
     const meta = document.createElement('div'); meta.className = 'cart-item-meta';
     const quantity = document.createElement('div'); quantity.className = 'quantity-control'; quantity.setAttribute('aria-label', `Cantidad de ${product.nombre || 'producto'}`);
-    const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.setAttribute('aria-label', 'Quitar una unidad'); minus.addEventListener('click', () => changeQuantity(item.id, -1));
-    const count = document.createElement('span'); count.textContent = String(item.quantity);
+    const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.setAttribute('aria-label', 'Disminuir una unidad'); minus.addEventListener('click', () => changeQuantity(item.id, -1));
+    const count = document.createElement('span'); count.textContent = String(item.quantity); count.setAttribute('aria-live', 'polite');
     const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+'; plus.setAttribute('aria-label', 'Agregar una unidad'); plus.addEventListener('click', () => changeQuantity(item.id, 1));
-    quantity.append(minus, count, plus); meta.appendChild(quantity);
+    quantity.append(minus, count, plus);
+
+    const controls = document.createElement('div'); controls.className = 'cart-item-controls';
+    controls.appendChild(quantity);
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'cart-remove-button';
+    remove.textContent = 'Quitar';
+    remove.setAttribute('aria-label', `Quitar ${product.nombre || 'producto'} del carrito`);
+    remove.title = 'Quitar este producto del carrito';
+    remove.addEventListener('click', () => removeFromCart(item.id));
+    controls.appendChild(remove);
+    meta.appendChild(controls);
+
     const lineTotal = document.createElement('strong'); lineTotal.className = 'cart-line-total'; lineTotal.textContent = formatGs(unit * item.quantity); meta.appendChild(lineTotal);
     info.appendChild(meta); row.appendChild(info); return row;
   }
 
   function updateShippingProgress(subtotal) {
     const minimum = Math.max(0, Number(config.FREE_SHIPPING_MINIMUM) || 0);
+    const reached = minimum > 0 && subtotal >= minimum;
+    const progressBox = elements.shippingProgressBox || $('shipping-progress-box');
+
+    // La barra completa cambia a verde cuando el subtotal llega al mínimo configurado.
+    if (progressBox) progressBox.classList.toggle('shipping-complete', reached);
+
     if (minimum <= 0) {
       elements.shippingMessage.textContent = 'Consultá el mínimo de envío gratis por WhatsApp';
       elements.shippingRemaining.textContent = '';
       elements.shippingFill.style.width = '0%';
       return;
     }
-    if (subtotal >= minimum) {
+    if (reached) {
       elements.shippingMessage.textContent = '¡Ya alcanzaste el envío gratis!';
       elements.shippingRemaining.textContent = 'Completado';
       elements.shippingFill.style.width = '100%';
