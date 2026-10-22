@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff7fa">
+  <meta name="description" content="Explorá el catálogo de skincare y cosmética coreana de NARA BEAUTY.">
+  <title>NARA BEAUTY | Catálogo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="announcement">Skincare coreano seleccionado con cariño ✦ Consultá disponibilidad por WhatsApp</div>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="NARA BEAUTY inicio">
+      <span class="brand-name">NARA</span>
+      <span class="brand-subtitle">BEAUTY · K-SKINCARE</span>
+    </a>
+    <a class="header-link" id="header-whatsapp" href="#catalogo">Consultar productos <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> TU RUTINA, TU MOMENTO</p>
+        <h1>Tu piel merece<br><em>un poquito de NARA.</em></h1>
+        <p class="hero-description">Descubrí tus próximos favoritos de skincare coreano. Explorá el catálogo y consultanos por tu producto ideal.</p>
+        <a class="hero-cta" href="#catalogo">Explorar catálogo <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <div class="art-center">
+          <span class="art-sparkle sparkle-one">✳</span>
+          <span class="art-sparkle sparkle-two">✦</span>
+          <span class="art-nara">N</span>
+          <span class="art-caption">glow at your pace</span>
+        </div>
+        <span class="art-pill pill-top">K-BEAUTY</span>
+        <span class="art-pill pill-bottom">CUIDADO REAL</span>
+      </div>
+    </section>
+
+    <section id="catalogo" class="catalog-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">DESCUBRÍ TU FAVORITO</p>
+          <h2>El catálogo</h2>
+          <p class="section-subtitle">Productos, precios y detalles en un solo lugar.</p>
+        </div>
+        <label class="search-box" for="search-input">
+          <span aria-hidden="true">⌕</span>
+          <input id="search-input" type="search" placeholder="Buscar producto..." autocomplete="off">
+        </label>
+      </div>
+
+      <nav id="category-filters" class="category-filters" aria-label="Filtrar por categoría">
+        <button class="filter-chip active" type="button" data-category="Todas">Todos</button>
+      </nav>
+
+      <div id="catalog-status" class="catalog-status" role="status" aria-live="polite">
+        <span class="loading-dot"></span> Conectando con el catálogo…
+      </div>
+      <div id="product-grid" class="product-grid" aria-live="polite"></div>
+      <div id="empty-results" class="empty-results" hidden>
+        <div class="empty-icon">♡</div>
+        <h3>No encontramos ese producto</h3>
+        <p>Probá con otra palabra o consultanos por WhatsApp.</p>
+        <button id="clear-search" class="text-button" type="button">Limpiar búsqueda</button>
+      </div>
+    </section>
+
+    <section class="custom-order">
+      <div class="custom-order-icon">✧</div>
+      <div>
+        <p class="eyebrow">¿BUSCÁS ALGO EN ESPECIAL?</p>
+        <h2>También podemos ayudarte a encontrarlo.</h2>
+        <p>Consultanos por tu producto favorito o por artículos que todavía no figuran en el catálogo.</p>
+      </div>
+      <a id="custom-order-link" class="hero-cta" href="#catalogo" target="_blank" rel="noopener">Consultar por WhatsApp <span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" href="./">
+      <span class="brand-name">NARA</span>
+      <span class="brand-subtitle">BEAUTY · K-SKINCARE</span>
+    </a>
+    <p>Tu espacio de cuidado y belleza. ♡</p>
+    <span class="footer-note">Los precios y la disponibilidad pueden cambiar. Confirmá antes de realizar tu pedido.</span>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>
