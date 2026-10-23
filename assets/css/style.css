@@ -28,12 +28,12 @@ button { cursor: pointer; }
 .header-link span { color: var(--pink-deep); margin-left: 7px; }
 .hero { max-width: 1240px; margin: 0 auto; padding: 58px 32px 74px; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 40px; }
 .hero-copy { padding: 10px 0 22px; }
-.eyebrow { margin: 0 0 16px; color: var(--pink-deep); font-size: 10px; font-weight: 700; letter-spacing: .19em; }
+.eyebrow { margin: 0 0 16px; color: var(--pink-deep); font-size: 9px; font-weight: 700; letter-spacing: .22em; line-height: 1.7; }
 .eyebrow-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; background: #ca8eaa; border-radius: 99px; }
 h1, h2, h3, p { overflow-wrap: anywhere; }
-h1, h2, h3 { font-family: 'Manrope', sans-serif; }
-h1 { margin: 0; font-size: clamp(42px, 5.7vw, 72px); line-height: 1.08; letter-spacing: -.065em; font-weight: 700; }
-h1 em { color: var(--pink-deep); font-weight: 500; font-style: normal; }
+h1, h2, h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; text-wrap: balance; }
+h1 { margin: 0; font-size: clamp(48px, 6vw, 78px); line-height: .98; letter-spacing: -.035em; font-weight: 500; }
+h1 em { color: var(--pink-deep); font-weight: 500; font-style: italic; }
 .hero-description { max-width: 475px; margin: 24px 0 30px; color: var(--muted); font-size: 15px; line-height: 1.8; }
 .hero-cta { display: inline-flex; align-items: center; justify-content: center; gap: 24px; min-height: 48px; padding: 0 22px; color: #fff; background: var(--ink); border: 1px solid var(--ink); border-radius: 999px; font-size: 12px; font-weight: 700; transition: transform .2s ease, background .2s ease; }
 .hero-cta:hover { transform: translateY(-2px); background: #4a3540; }
@@ -53,7 +53,8 @@ h1 em { color: var(--pink-deep); font-weight: 500; font-style: normal; }
 .catalog-section { background: #fff; padding: 78px max(32px, calc((100vw - 1176px) / 2)) 92px; }
 .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; }
 .section-heading .eyebrow { margin-bottom: 10px; }
-h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-height: 1.15; }
+h2 { font-size: clamp(34px, 4vw, 48px); letter-spacing: -.025em; margin: 0; line-height: 1.04; font-weight: 500; }
+.section-heading h2::after { content: ''; display: block; width: 38px; height: 1px; margin-top: 13px; background: linear-gradient(90deg, var(--pink-deep), rgba(164, 88, 125, .12)); }
 .section-subtitle { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
 .search-box { display: flex; align-items: center; gap: 10px; width: min(100%, 285px); padding: 0 15px; min-height: 46px; border: 1px solid var(--line); border-radius: 999px; color: #9a8790; }
 .search-box span { font-size: 23px; line-height: 1; }
@@ -73,7 +74,7 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
 .image-placeholder { position: absolute; inset: 0; display: grid; place-items: center; color: #b48a9e; font-family: 'Manrope', sans-serif; font-weight: 800; letter-spacing: .22em; font-size: 12px; }
 .product-details { padding: 16px 15px 15px; }
 .product-category { margin: 0 0 8px; color: var(--pink-deep); font-size: 9px; text-transform: uppercase; letter-spacing: .13em; font-weight: 700; }
-.product-name { display: block; margin: 0; padding: 0; border: 0; background: none; color: var(--ink); text-align: left; font-size: 15px; line-height: 1.4; letter-spacing: -.025em; font-weight: 700; cursor: pointer; }
+.product-name { display: block; margin: 0; padding: 0; border: 0; background: none; color: var(--ink); text-align: left; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; line-height: 1.16; letter-spacing: -.01em; font-weight: 600; cursor: pointer; }
 .product-name:hover { color: var(--pink-deep); }
 .product-brand { margin: 5px 0 0; color: #877780; font-size: 10px; }
 .product-description { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 35px; }
@@ -88,13 +89,13 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
 .empty-results { text-align: center; padding: 48px 12px; color: var(--muted); }
 .empty-results[hidden] { display: none; }
 .empty-icon { font-size: 35px; color: var(--pink-deep); }
-.empty-results h3 { color: var(--ink); font-size: 19px; margin: 12px 0 8px; }
+.empty-results h3 { color: var(--ink); font-size: 24px; line-height: 1.1; margin: 12px 0 8px; }
 .empty-results p { font-size: 13px; }
 .text-button { border: 0; border-bottom: 1px solid #b66c8e; padding: 5px 0; color: #a35f80; background: transparent; cursor: pointer; font-size: 12px; }
 .custom-order { max-width: 1176px; margin: 0 auto; padding: 28px 32px 80px; display: grid; grid-template-columns: 56px 1fr auto; align-items: center; gap: 22px; }
 .custom-order-icon { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: var(--pink-soft); color: var(--pink-deep); font-size: 25px; }
 .custom-order .eyebrow { margin: 0 0 8px; }
-.custom-order h2 { font-size: 23px; }
+.custom-order h2 { font-size: 29px; line-height: 1.08; }
 .custom-order p:not(.eyebrow) { max-width: 600px; margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 28px 32px; background: var(--pink-soft); }
 .footer-brand .brand-name { font-size: 23px; }
@@ -124,13 +125,13 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
 .modal-product-info { padding: 43px 36px 30px; }
 .modal-product-info .product-category { margin-bottom: 12px; }
 .modal-brand { margin-bottom: 8px; }
-.modal-product-info h2 { max-width: 570px; font-size: clamp(26px, 3.1vw, 38px); margin: 0; line-height: 1.2; }
+.modal-product-info h2 { max-width: 570px; font-size: clamp(30px, 3.4vw, 43px); margin: 0; line-height: 1.06; letter-spacing: -.015em; }
 .modal-product-price { margin: 17px 0 0; color: var(--pink-deep); font-size: 24px; font-weight: 800; }
 .modal-availability { display: inline-block; margin: 12px 0 0; font-size: 11px; color: #66805e; }
 .modal-description { margin: 18px 0 0; color: #6f626a; font-size: 13px; line-height: 1.8; white-space: pre-line; }
 .modal-product-fields { margin-top: 6px; }
 .detail-field { padding: 14px 0; border-bottom: 1px solid #f1e7ec; }
-.detail-field h3 { margin: 0 0 7px; font-size: 12px; letter-spacing: .01em; }
+.detail-field h3 { margin: 0 0 7px; font-size: 16px; line-height: 1.2; letter-spacing: 0; font-weight: 600; }
 .detail-field p { margin: 0; color: #786a72; font-size: 12px; line-height: 1.8; white-space: pre-line; }
 .detail-field a { color: var(--pink-deep); font-size: 12px; text-decoration: underline; }
 .modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
@@ -162,7 +163,7 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
 .cart-item { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 13px; padding: 17px 0; border-bottom: 1px solid #f3eaf0; }
 .cart-item-image { width: 72px; height: 82px; border-radius: 12px; object-fit: cover; background: #fbf3f6; }
 .cart-item-image-placeholder { width: 72px; height: 82px; border-radius: 12px; display: grid; place-items: center; background: #fbf3f6; color: #b48a9e; font-size: 9px; text-align: center; }
-.cart-item-name { margin: 0; color: var(--ink); font-size: 12px; line-height: 1.5; font-weight: 700; }
+.cart-item-name { margin: 0; color: var(--ink); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; line-height: 1.18; font-weight: 600; }
 .cart-item-unit { margin: 5px 0 8px; color: var(--muted); font-size: 10px; }
 .cart-item-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px 12px; flex-wrap: wrap; }
 .cart-item-controls { display: inline-flex; align-items: center; gap: 9px; min-width: 0; flex-wrap: wrap; }
@@ -184,7 +185,7 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
 .cart-line-total { color: var(--ink); font-size: 11px; font-weight: 800; white-space: nowrap; margin-left: auto; }
 .cart-empty { flex: 1; padding: 45px 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .cart-empty-icon { font-size: 45px; color: #c78da8; }
-.cart-empty h3 { margin: 13px 0 8px; font-size: 19px; }
+.cart-empty h3 { margin: 13px 0 8px; font-size: 25px; line-height: 1.08; }
 .cart-empty p { max-width: 280px; margin: 0 0 20px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .cart-footer { padding: 18px 24px calc(20px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(50,30,40,.025); }
 .cart-subtotal-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; font-size: 12px; }
@@ -223,7 +224,7 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
   .category-filters { margin-top: 23px; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px; }
   .product-details { padding: 12px 10px; }
-  .product-name { font-size: 12px; }
+  .product-name { font-size: 17px; line-height: 1.12; }
   .product-description { font-size: 10px; }
   .product-price { font-size: 13px; }
   .product-bottom { margin-top: 12px; padding-top: 11px; gap: 9px; }
@@ -232,7 +233,7 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
   .product-details-link { min-width: 37px; padding: 8px; }
   .custom-order { grid-template-columns: 44px 1fr; padding: 12px 20px 58px; gap: 15px; }
   .custom-order-icon { width: 44px; height: 44px; }
-  .custom-order h2 { font-size: 20px; }
+  .custom-order h2 { font-size: 25px; line-height: 1.08; }
   .custom-order .hero-cta { grid-column: 1 / -1; justify-self: start; }
   .site-footer { padding: 25px 20px; }
   .product-modal { width: calc(100vw - 16px); max-height: 92dvh; border-radius: 18px; }
@@ -241,7 +242,7 @@ h2 { font-size: clamp(31px, 4vw, 45px); letter-spacing: -.05em; margin: 0; line-
   .modal-product-image-wrap img, .modal-image-placeholder { min-height: 0; height: 100%; }
   .modal-product-image-wrap img { object-fit: contain; padding: 12px; }
   .modal-product-info { padding: 24px 20px 22px; }
-  .modal-product-info h2 { font-size: 27px; padding-right: 12px; }
+  .modal-product-info h2 { font-size: 31px; padding-right: 12px; }
   .modal-product-price { font-size: 22px; }
   .modal-close { margin: 9px 9px -47px 0; }
   .modal-actions { flex-direction: column; }
