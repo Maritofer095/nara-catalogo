@@ -225,8 +225,7 @@
     title.type = 'button'; title.className = 'product-name'; title.textContent = product.nombre || 'Producto';
     title.addEventListener('click', () => openProductModal(product)); details.appendChild(title);
     if (product.marca) { const brand = document.createElement('p'); brand.className = 'product-brand'; brand.textContent = product.marca; details.appendChild(brand); }
-    const shortDescription = product.descripcion || product.beneficios || '';
-    if (shortDescription) { const desc = document.createElement('p'); desc.className = 'product-description'; desc.textContent = shortDescription; details.appendChild(desc); }
+    // La descripción se muestra únicamente en la ventana de detalles al pulsar «Ver».
 
     const bottom = document.createElement('div'); bottom.className = 'product-bottom';
     const price = document.createElement('p'); price.className = 'product-price';
