@@ -589,17 +589,8 @@
     if (elements.cartDrawer.classList.contains('open')) closeCart();
     else if (!elements.productModal.hidden) closeProductModal();
   });
-
-    initWhatsAppLinks();
+  
+ initWhatsAppLinks();
   renderCart();
-
-  // Carga inicial del catálogo.
   loadCatalog();
-
-  // Actualiza productos, precios y stock cada 60 segundos.
-  // No recarga la página ni reinicia el carrito.
-  window.setInterval(() => {
-    loadCatalog({ silent: true });
-  }, 60 * 1000);
-
 })();
