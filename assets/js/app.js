@@ -11,7 +11,7 @@
     cartFooter: $('cart-footer'), cartSubtotal: $('cart-subtotal'), cartShippingNote: $('cart-shipping-note'), checkout: $('checkout-whatsapp'),
     continueShopping: $('continue-shopping'), shippingMessage: $('shipping-message'), shippingRemaining: $('shipping-remaining'), shippingFill: $('shipping-progress-fill'),
     modalBackdrop: $('product-modal-backdrop'), productModal: $('product-modal'), closeProductModal: $('close-product-modal'), modalImage: $('modal-product-image'),
-    modalImagePlaceholder: $('modal-image-placeholder'), modalCategory: $('modal-product-category'), modalBrand: $('modal-product-brand'), modalName: $('modal-product-name'),
+    modalImagePlaceholder: $('modal-image-placeholder'), modalImagePrev: $('modal-image-prev'), modalImageNext: $('modal-image-next'), modalImageCounter: $('modal-image-counter'), modalCategory: $('modal-product-category'), modalBrand: $('modal-product-brand'), modalName: $('modal-product-name'),
     modalPrice: $('modal-product-price'), modalAvailability: $('modal-product-availability'), modalDescription: $('modal-product-description'),
     modalFields: $('modal-product-fields'), modalAdd: $('modal-add-to-cart'), modalWhatsapp: $('modal-consult-whatsapp'), toast: $('toast-message')
   };
@@ -20,7 +20,7 @@
   const CALLBACK_NAME = 'NaraCatalogoCallback';
   const state = {
     products: [], category: 'Todas', query: '', cart: readCart(), apiWarnings: [], currentProduct: null,
-    lastFocus: null, toastTimer: null, requestDone: false
+    lastFocus: null, toastTimer: null, requestDone: false, currentImages: [], currentImageIndex: 0
   };
 
   function readCart() {
@@ -48,6 +48,27 @@
     const digits = text.replace(/[^0-9]/g, '');
     const parsed = Number(digits);
     return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  // La API entrega la columna STOCK en el campo disponibilidad.
+  // Un número mayor que cero significa EN STOCK; cero, vacío o texto ambiguo significa CONSULTAR STOCK.
+  function getStockStatus(product) {
+    const raw = product && (product.disponibilidad != null ? product.disponibilidad : product.stock);
+    const value = String(raw == null ? '' : raw).trim();
+    const normalized = normalizeText(value);
+    if (!value) return { available: false, label: 'CONSULTAR STOCK' };
+
+    const numeric = Number(value.replace(',', '.'));
+    if (Number.isFinite(numeric)) {
+      return numeric > 0
+        ? { available: true, label: 'EN STOCK' }
+        : { available: false, label: 'CONSULTAR STOCK' };
+    }
+
+    if (['en stock', 'disponible', 'disponibles', 'si', 'true', 'hay stock', 'stock disponible'].includes(normalized)) {
+      return { available: true, label: 'EN STOCK' };
+    }
+    return { available: false, label: 'CONSULTAR STOCK' };
   }
 
   function formatGs(value) {
@@ -225,6 +246,12 @@
     title.type = 'button'; title.className = 'product-name'; title.textContent = product.nombre || 'Producto';
     title.addEventListener('click', () => openProductModal(product)); details.appendChild(title);
     if (product.marca) { const brand = document.createElement('p'); brand.className = 'product-brand'; brand.textContent = product.marca; details.appendChild(brand); }
+    const stock = getStockStatus(product);
+    const stockBadge = document.createElement('span');
+    stockBadge.className = `product-stock-badge ${stock.available ? 'stock-in-stock' : 'stock-consult'}`;
+    stockBadge.textContent = stock.label;
+    stockBadge.setAttribute('aria-label', `Disponibilidad: ${stock.label}`);
+    details.appendChild(stockBadge);
     // La descripción se muestra únicamente en la ventana de detalles al pulsar «Ver».
 
     const bottom = document.createElement('div'); bottom.className = 'product-bottom';
@@ -233,16 +260,24 @@
     price.textContent = value > 0 ? formatGs(value) : 'Precio a consultar';
     bottom.appendChild(price);
     const actions = document.createElement('div'); actions.className = 'product-actions';
-    const add = document.createElement('button'); add.type = 'button'; add.className = 'product-add';
-    if (value > 0) {
-      add.textContent = '＋ Agregar al carrito';
-      add.addEventListener('click', event => { event.stopPropagation(); addToCart(product); });
-    } else {
-      add.textContent = 'Precio pendiente'; add.disabled = true; add.title = 'No se puede calcular el total porque la API no entregó un precio numérico.';
-    }
     const view = document.createElement('button'); view.type = 'button'; view.className = 'product-details-link'; view.textContent = 'Ver'; view.setAttribute('aria-label', `Ver detalles de ${product.nombre || 'producto'}`);
     view.addEventListener('click', event => { event.stopPropagation(); openProductModal(product); });
-    actions.append(add, view); bottom.appendChild(actions); details.appendChild(bottom);
+    if (stock.available && value > 0) {
+      const add = document.createElement('button'); add.type = 'button'; add.className = 'product-add';
+      add.textContent = '＋ Agregar al carrito';
+      add.addEventListener('click', event => { event.stopPropagation(); addToCart(product); });
+      actions.append(add, view);
+    } else {
+      const consult = document.createElement('a');
+      consult.className = 'product-consult-whatsapp';
+      consult.textContent = 'Consultar por WhatsApp';
+      consult.href = makeWhatsAppLink(`Hola, quiero consultar la disponibilidad de ${product.nombre || 'este producto'}${value > 0 ? ` (precio publicado: ${formatGs(value)})` : ''}. ¿Tienen stock?`);
+      consult.target = '_blank'; consult.rel = 'noopener noreferrer';
+      consult.setAttribute('aria-label', `Consultar por WhatsApp la disponibilidad de ${product.nombre || 'producto'}`);
+      consult.addEventListener('click', event => event.stopPropagation());
+      actions.append(consult, view);
+    }
+    bottom.appendChild(actions); details.appendChild(bottom);
     card.append(media, details);
     return card;
   }
@@ -276,6 +311,33 @@
     elements.modalFields.appendChild(section);
   }
 
+  function renderModalImage() {
+    const images = state.currentImages || [];
+    const count = images.length;
+    const hasMany = count > 1;
+    elements.modalImage.hidden = true;
+    elements.modalImage.removeAttribute('src');
+    elements.modalImagePlaceholder.hidden = count > 0;
+    elements.modalImagePlaceholder.textContent = 'NARA BEAUTY';
+    elements.modalImagePrev.hidden = !hasMany;
+    elements.modalImageNext.hidden = !hasMany;
+    elements.modalImageCounter.hidden = !hasMany;
+    elements.modalImageCounter.textContent = count ? `${state.currentImageIndex + 1} / ${count}` : '0 / 0';
+    elements.modalImage.alt = `Foto ${state.currentImageIndex + 1} de ${count} de ${state.currentProduct?.nombre || 'producto'}`;
+    if (!count) return;
+    const url = images[state.currentImageIndex];
+    elements.modalImage.onload = () => { elements.modalImage.hidden = false; elements.modalImagePlaceholder.hidden = true; };
+    elements.modalImage.onerror = () => { elements.modalImage.hidden = true; elements.modalImagePlaceholder.hidden = false; };
+    elements.modalImage.src = url;
+  }
+
+  function moveModalImage(direction) {
+    const count = state.currentImages.length;
+    if (count < 2) return;
+    state.currentImageIndex = (state.currentImageIndex + direction + count) % count;
+    renderModalImage();
+  }
+
   function openProductModal(product) {
     if (!product) return;
     state.currentProduct = product;
@@ -286,8 +348,12 @@
     elements.modalName.textContent = product.nombre || 'Producto';
     const value = priceNumber(product);
     elements.modalPrice.textContent = value > 0 ? formatGs(value) : (product.precio || 'Precio a consultar');
-    elements.modalAvailability.textContent = product.disponibilidad || '';
-    elements.modalAvailability.hidden = !product.disponibilidad;
+    const stock = getStockStatus(product);
+    elements.modalAvailability.textContent = stock.label;
+    elements.modalAvailability.classList.toggle('stock-in-stock', stock.available);
+    elements.modalAvailability.classList.toggle('stock-consult', !stock.available);
+    elements.modalAvailability.hidden = false;
+    elements.modalAvailability.setAttribute('aria-label', `Disponibilidad: ${stock.label}`);
     elements.modalDescription.textContent = product.descripcion || '';
     elements.modalDescription.hidden = !product.descripcion;
     elements.modalFields.replaceChildren();
@@ -307,22 +373,24 @@
       addDetailField('Información', 'La planilla no tiene más detalles cargados para este producto.');
     }
 
-    const imageUrl = String(product.imagen || '').trim();
-    elements.modalImage.hidden = true;
-    elements.modalImage.removeAttribute('src');
-    elements.modalImagePlaceholder.hidden = false;
-    elements.modalImage.alt = `Foto de ${product.nombre || 'producto'}`;
-    if (imageUrl) {
-      elements.modalImage.src = imageUrl;
-      elements.modalImage.onload = () => { elements.modalImage.hidden = false; elements.modalImagePlaceholder.hidden = true; };
-      elements.modalImage.onerror = () => { elements.modalImage.hidden = true; elements.modalImagePlaceholder.hidden = false; };
-    }
+    // Galería: prioriza el array de la API y mantiene compatibilidad con productos antiguos.
+    const rawImages = Array.isArray(product.imagenes) ? product.imagenes : [product.imagen];
+    state.currentImages = [...new Set(rawImages.map(url => String(url || '').trim()).filter(Boolean))];
+    if (!state.currentImages.length && product.imagen) state.currentImages = [String(product.imagen).trim()];
+    state.currentImageIndex = 0;
+    renderModalImage();
 
-    elements.modalAdd.disabled = value <= 0;
-    elements.modalAdd.textContent = value > 0 ? '＋ Agregar al carrito' : 'Precio no disponible';
-    elements.modalAdd.onclick = () => { if (priceNumber(state.currentProduct) > 0) addToCart(state.currentProduct); };
+    // Solo se permite agregar al carrito si la columna STOCK confirma disponibilidad y hay precio numérico.
+    elements.modalAdd.hidden = !stock.available || value <= 0;
+    elements.modalAdd.disabled = !stock.available || value <= 0;
+    elements.modalAdd.textContent = '＋ Agregar al carrito';
+    elements.modalAdd.onclick = () => {
+      const current = state.currentProduct;
+      if (current && getStockStatus(current).available && priceNumber(current) > 0) addToCart(current);
+    };
     const query = `Hola, quiero consultar por ${product.nombre || 'este producto'}${value > 0 ? ` (precio publicado: ${formatGs(value)})` : ''}. ¿Podrían confirmarme disponibilidad y detalles?`;
     elements.modalWhatsapp.href = makeWhatsAppLink(query);
+    elements.modalWhatsapp.textContent = stock.available ? 'Consultar por WhatsApp' : 'Consultar por WhatsApp';
     elements.modalWhatsapp.onclick = null;
 
     elements.modalBackdrop.hidden = false;
@@ -512,7 +580,11 @@
   elements.checkout.addEventListener('click', concludeByWhatsApp);
   elements.closeProductModal.addEventListener('click', () => closeProductModal());
   elements.modalBackdrop.addEventListener('click', () => closeProductModal());
+  elements.modalImagePrev.addEventListener('click', () => moveModalImage(-1));
+  elements.modalImageNext.addEventListener('click', () => moveModalImage(1));
   document.addEventListener('keydown', event => {
+    if (!elements.productModal.hidden && event.key === 'ArrowLeft') { moveModalImage(-1); return; }
+    if (!elements.productModal.hidden && event.key === 'ArrowRight') { moveModalImage(1); return; }
     if (event.key !== 'Escape') return;
     if (elements.cartDrawer.classList.contains('open')) closeCart();
     else if (!elements.productModal.hidden) closeProductModal();
