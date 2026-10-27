@@ -551,14 +551,14 @@
     const minimum = Math.max(0, Number(config.FREE_SHIPPING_MINIMUM) || 0);
     const freeShipping = minimum > 0 && subtotal >= minimum;
     const messageLines = [
-      `Hola ${config.STORE_NAME || 'NARA BEAUTY'}, quiero concluir esta compra:`,
+      `Hola ${config.STORE_NAME || 'NARA! 🩷'}, quisiera realizar esta compra:`,
       '',
       ...lines.map(({ item, product }) => `• ${item.quantity} x ${product.nombre} — ${formatGs(priceNumber(product) * item.quantity)} (${formatGs(priceNumber(product))} c/u)`),
       '',
-      `TOTAL DE PRODUCTOS: ${formatGs(subtotal)}`,
+      `TOTAL Gs: ${formatGs(subtotal)}`,
       `Envío: ${freeShipping ? 'GRATIS (se alcanzó el mínimo indicado)' : 'costo a confirmar por WhatsApp'}`,
       '',
-      'Por favor, confirmen disponibilidad, costo/condiciones de entrega y forma de pago.'
+      'Podrían confirmar disponibilidad, costo/condiciones de entrega y forma de pago por favor.😊'
     ];
     const link = makeWhatsAppLink(messageLines.join('\n'));
     window.open(link, '_blank', 'noopener,noreferrer');
