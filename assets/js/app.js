@@ -20,8 +20,62 @@
   const CALLBACK_NAME = 'NaraCatalogoCallback';
   const state = {
     products: [], category: 'Todas', query: '', cart: readCart(), apiWarnings: [], currentProduct: null,
-    lastFocus: null, toastTimer: null, requestDone: false, currentImages: [], currentImageIndex: 0
+    lastFocus: null, toastTimer: null, requestDone: false, currentImages: [], currentImageIndex: 0,
+    productViewStartedAt: null
   };
+
+  // ================= GOOGLE ANALYTICS =================
+  // La etiqueta de Google debe estar instalada en index.html.
+  // Si gtag no está disponible, estas funciones no interrumpen el catálogo.
+
+  function trackEvent(eventName, parameters = {}) {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', eventName, parameters);
+  }
+
+  function analyticsItem(product, quantity = 1) {
+    return {
+      item_id: String(product.id ?? product.nombre ?? 'producto'),
+      item_name: String(product.nombre || 'Producto'),
+      item_brand: String(product.marca || ''),
+      item_category: String(product.categoria || ''),
+      price: priceNumber(product),
+      quantity: Math.max(1, Number(quantity) || 1)
+    };
+  }
+
+  function trackProductViewDuration() {
+    if (!state.currentProduct || !state.productViewStartedAt) return;
+
+    const seconds = Math.round((Date.now() - state.productViewStartedAt) / 1000);
+    const product = state.currentProduct;
+    state.productViewStartedAt = null;
+
+    if (seconds < 1) return;
+
+    trackEvent('product_view_time', {
+      currency: 'PYG',
+      value: priceNumber(product),
+      product_id: String(product.id ?? product.nombre ?? 'producto'),
+      product_name: String(product.nombre || 'Producto'),
+      duration_seconds: seconds
+    });
+  }
+
+  // Registra clics en enlaces de WhatsApp del catálogo.
+  // El checkout también registra su evento específico al generar el pedido.
+  document.addEventListener('click', event => {
+    const target = event.target;
+    if (!target || typeof target.closest !== 'function') return;
+
+    const link = target.closest('a[href*="wa.me/"]');
+    if (!link) return;
+
+    trackEvent('whatsapp_click', {
+      link_url: link.href,
+      link_text: (link.innerText || link.textContent || '').trim().slice(0, 100)
+    });
+  });
 
   function readCart() {
     try {
@@ -281,8 +335,7 @@
     card.append(media, details);
     return card;
   }
-
-  function getFilteredProducts() {
+    function getFilteredProducts() {
     const query = normalizeText(state.query);
     return state.products.filter(product => {
       const categoryMatch = state.category === 'Todas' || String(product.categoria || '') === state.category;
@@ -340,7 +393,19 @@
 
   function openProductModal(product) {
     if (!product) return;
+
+    // Finaliza la medición anterior si se abre otro producto.
+    trackProductViewDuration();
+
     state.currentProduct = product;
+    state.productViewStartedAt = Date.now();
+
+    trackEvent('view_item', {
+      currency: 'PYG',
+      value: priceNumber(product),
+      items: [analyticsItem(product)]
+    });
+
     state.lastFocus = document.activeElement;
     elements.modalCategory.textContent = product.categoria || '';
     elements.modalBrand.textContent = product.marca || '';
@@ -400,6 +465,7 @@
   }
 
   function closeProductModal(restoreFocus = true) {
+    trackProductViewDuration();
     elements.modalBackdrop.hidden = true;
     elements.productModal.hidden = true;
     state.currentProduct = null;
@@ -418,29 +484,65 @@
     const id = String(product.id);
     const existing = state.cart.find(item => item.id === id);
     if (existing) existing.quantity += 1; else state.cart.push({ id, quantity: 1 });
-    saveCart(); renderCart(); showToast(`${product.nombre || 'Producto'} agregado al carrito.`);
+
+    trackEvent('add_to_cart', {
+      currency: 'PYG',
+      value: unitPrice,
+      items: [analyticsItem(product, 1)]
+    });
+
+    saveCart();
+    renderCart();
+    showToast(`${product.nombre || 'Producto'} agregado al carrito.`);
   }
 
   function changeQuantity(id, delta) {
     const item = state.cart.find(line => line.id === String(id));
     if (!item) return;
+
+    const product = productById(id);
+    if (!product) return;
+
+    if (delta < 0) {
+      trackEvent('remove_from_cart', {
+        currency: 'PYG',
+        value: priceNumber(product),
+        items: [analyticsItem(product, 1)]
+      });
+    } else if (delta > 0) {
+      trackEvent('add_to_cart', {
+        currency: 'PYG',
+        value: priceNumber(product),
+        items: [analyticsItem(product, 1)]
+      });
+    }
+
     item.quantity += delta;
     if (item.quantity <= 0) state.cart = state.cart.filter(line => line.id !== String(id));
-    saveCart(); renderCart();
+    saveCart();
+    renderCart();
   }
 
   // Quita completamente un producto del carrito, sin modificar el catálogo.
   function removeFromCart(id) {
     const product = productById(id);
-    const exists = state.cart.some(line => line.id === String(id));
-    if (!exists) return;
-    state.cart = state.cart.filter(line => line.id !== String(id));
+    const line = state.cart.find(item => item.id === String(id));
+    if (!line) return;
+
+    if (product) {
+      trackEvent('remove_from_cart', {
+        currency: 'PYG',
+        value: priceNumber(product) * line.quantity,
+        items: [analyticsItem(product, line.quantity)]
+      });
+    }
+
+    state.cart = state.cart.filter(lineItem => lineItem.id !== String(id));
     saveCart();
     renderCart();
     showToast(`${product && product.nombre ? product.nombre : 'Producto'} quitado del carrito.`);
   }
-
-  function renderCart() {
+    function renderCart() {
     const lines = getCartLines();
     const itemCount = getTotalItems();
     const subtotal = getSubtotal();
@@ -561,6 +663,19 @@
       'Podrían confirmar disponibilidad, costo/condiciones de entrega y forma de pago por favor.😊'
     ];
     const link = makeWhatsAppLink(messageLines.join('\n'));
+
+    // Eventos de Google Analytics para el inicio del checkout.
+    trackEvent('begin_checkout', {
+      currency: 'PYG',
+      value: subtotal,
+      items: lines.map(({ item, product }) => analyticsItem(product, item.quantity))
+    });
+
+    trackEvent('whatsapp_click', {
+      link_url: link,
+      link_text: 'Concluir compra por WhatsApp'
+    });
+
     window.open(link, '_blank', 'noopener,noreferrer');
   }
 
@@ -589,8 +704,8 @@
     if (elements.cartDrawer.classList.contains('open')) closeCart();
     else if (!elements.productModal.hidden) closeProductModal();
   });
-  
- initWhatsAppLinks();
+
+  initWhatsAppLinks();
   renderCart();
   loadCatalog();
 })();
